@@ -14,3 +14,4 @@ operador_cruce=OX2
 probabilidad_cruce=0.7
 n_eval_tabu=500
 n_iter_tabu=50
+tenencia_tabu=
