@@ -203,6 +203,29 @@ def algortimo_evolutivo_generacional(tam, k,tam_poblacion,tam_greedy,m_flujo,m_d
 
     return mejor_individuo,cont
 
+def algoritmo_memetico(tam_problema, k, tam_poblacion, tam_greedy, m_flujo, m_distancia, aleatorio, max_evaluaciones,n_elite,Kbest,K_worst,prob_mutacion,tiempo_max, operador_cruce, probabilidad_cruce,log):
+    n_evaluaciones=0
+    gen = 0
+    tiempo_inicio=time.perf_counter()
+    poblacion_actual = poblacion_inicial(tam_problema, k, tam_poblacion, tam_greedy, m_flujo, m_distancia, aleatorio, n_elite)
+    while n_evaluaciones < max_evaluaciones and (time.perf_counter()-tiempo_inicio<tiempo_max):
+        gen = gen + 1
+        log.log(f"Generación: {gen}", "GENERACION")
+        # Ejecutamos seleccion
+        poblacion_actual=seleccion_por_torneo(poblacion_actual, tam_poblacion, aleatorio, Kbest)
+        # Ejecutamos cruce
+        poblacion_actual=cruce(poblacion_actual, tam_poblacion, probabilidad_cruce, aleatorio, Kbest, operador_cruce)
+        # Ejecutamos mutacion
+        poblacion_actual=mutacion(poblacion_actual, tam_problema, prob_mutacion, aleatorio, log)
+        # Evaluamos la poblacion actual
+        n_evaluaciones += evaluacion.evaluacion_poblacion(tam_problema, m_flujo, m_distancia, poblacion_actual)
+
+        # Comprobamos si la po
+
+        log.log(f"Número total de evaluaciones: {n_evaluaciones}")
+        # Aplicamos una mejora local al mejor individuo encontrado
+        # Aquí se podría implementar una función de mejora local específica
+        # Por simplicidad, no se implementa en este ejemplo
 
 def main():
     probabilidad_cruce = 0.5
