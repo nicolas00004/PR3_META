@@ -203,14 +203,20 @@ def algortimo_evolutivo_generacional(tam, k,tam_poblacion,tam_greedy,m_flujo,m_d
 
     return mejor_individuo,cont
 
-def algoritmo_memetico(tam_problema, k, tam_poblacion, tam_greedy, m_flujo, m_distancia, aleatorio, max_evaluaciones,n_elite,Kbest,K_worst,prob_mutacion,tiempo_max, operador_cruce, probabilidad_cruce,log):
+def algoritmo_memetico(tam_problema, k, tam_poblacion, tam_greedy, m_flujo, m_distancia, aleatorio, max_evaluaciones,n_elite,Kbest,K_worst,prob_mutacion,tiempo_max, operador_cruce, probabilidad_cruce,log, n_eval_tabu_max, n_iter_tabu):
     n_evaluaciones=0
+    n_eval_tabu=0
     gen = 0
     tiempo_inicio=time.perf_counter()
     poblacion_actual = poblacion_inicial(tam_problema, k, tam_poblacion, tam_greedy, m_flujo, m_distancia, aleatorio, n_elite)
     while n_evaluaciones < max_evaluaciones and (time.perf_counter()-tiempo_inicio<tiempo_max):
         gen = gen + 1
         log.log(f"Generación: {gen}", "GENERACION")
+        # Obtenemos la poblacion elite
+        elite = obtener_elite(poblacion_actual, n_elite)
+        log.log(f"Coste de la población élite", "ELITE")
+        for i, ind in enumerate(elite):
+            log.log(f"E_{i}: {ind.coste}", "ELITE")
         # Ejecutamos seleccion
         poblacion_actual=seleccion_por_torneo(poblacion_actual, tam_poblacion, aleatorio, Kbest)
         # Ejecutamos cruce
@@ -218,14 +224,26 @@ def algoritmo_memetico(tam_problema, k, tam_poblacion, tam_greedy, m_flujo, m_di
         # Ejecutamos mutacion
         poblacion_actual=mutacion(poblacion_actual, tam_problema, prob_mutacion, aleatorio, log)
         # Evaluamos la poblacion actual
-        n_evaluaciones += evaluacion.evaluacion_poblacion(tam_problema, m_flujo, m_distancia, poblacion_actual)
-
-        # Comprobamos si la po
-
+        evaluaciones_gen = evaluacion.evaluacion_poblacion(tam_problema, m_flujo, m_distancia, poblacion_actual)
+        n_evaluaciones += evaluaciones_gen
+        n_eval_tabu += evaluaciones_gen
+        # Aplicamos la búsqueda tabú a los mejores individuos de la población
+        if n_eval_tabu > n_eval_tabu_max:
+            log.log("Aplicando búsqueda tabú a la élite...", "TABU")
+            for ind in elite:
+                # Aquí se podría implementar una función de búsqueda tabú específica
+                pass
+            n_eval_tabu -= n_eval_tabu_max
         log.log(f"Número total de evaluaciones: {n_evaluaciones}")
-        # Aplicamos una mejora local al mejor individuo encontrado
-        # Aquí se podría implementar una función de mejora local específica
-        # Por simplicidad, no se implementa en este ejemplo
+
+        # implementacion del reemplazamiento si elite no sobrevive es decir no está en poblacion_actual se aplica torneo de perdedores
+        for i in elite:
+            if (esta_poblacion(i, poblacion_actual) == False):
+                poblacion_actual = torneo_de_perdedores(poblacion_actual, aleatorio, K_worst, i, tam_problema, m_flujo,
+                                                        m_distancia)
+
+        mejor_individuo = min(poblacion_actual, key=lambda ind: ind.coste)
+        log.log(f"El individuo con el coste mínimo tiene un coste de: {mejor_individuo.coste}")
 
 def main():
     probabilidad_cruce = 0.5
