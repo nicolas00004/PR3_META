@@ -10,7 +10,7 @@ import os
 if __name__ == "__main__":
 
     configuracion=extraccion_Datos.cargar_param("parametros.txt")
-    semilla_original, k, archivos_Dat, num_sol, num_sol_greedy, num_ejecuciones, iteraciones, n_elite, k_best, k_worst, prob_mutacion, tiempo_max, operador_cruce, probabilidad_cruce,n_eval_tabu,n_iter_tabu = extraccion_Datos.cargar_datos(
+    semilla_original, k, archivos_Dat, num_sol, num_sol_greedy, num_ejecuciones, iteraciones, n_elite, k_best, k_worst, prob_mutacion, tiempo_max, operador_cruce, probabilidad_cruce,n_eval_tabu,n_iter_tabu,tenencia_tabu = extraccion_Datos.cargar_datos(
         configuracion)
 
     semilla = semilla_original
@@ -41,7 +41,7 @@ if __name__ == "__main__":
                                                                                          prob_mutacion,
                                                                                          tiempo_max,
                                                                                          operador_cruce,
-                                                                                         probabilidad_cruce,log,n_eval_tabu,n_iter_tabu)
+                                                                                         probabilidad_cruce,log,n_eval_tabu,n_iter_tabu,tenencia_tabu)
 
             duracion = time.time() - comienzo_aleatorio
             log.log_solucion_final(solucion.asignacion, solucion.coste, duracion)

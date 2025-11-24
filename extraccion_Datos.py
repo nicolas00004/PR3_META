@@ -68,6 +68,8 @@ def cargar_datos(archivo):
     n_eval_tabu=int(n_eval_tabu)
     n_iter_tabu=archivo['n_iter_tabu']
     n_iter_tabu=int(n_iter_tabu)
+    tenencia_tabu=int(archivo['tenencia_tabu'])
+
     archivos_dat = []
 
 
@@ -75,7 +77,7 @@ def cargar_datos(archivo):
         if archivo.endswith(".dat"):
             archivos_dat.append(os.path.join(ruta, archivo))
 
-    return semilla, k1, archivos_dat,num_sol,num_gre, num_ejecuciones,iteraciones,n_elite,k_best,k_worst,prob_mutacion,t_max, operador_cruce, probabilidad_cruce,n_eval_tabu,n_iter_tabu
+    return semilla, k1, archivos_dat,num_sol,num_gre, num_ejecuciones,iteraciones,n_elite,k_best,k_worst,prob_mutacion,t_max, operador_cruce, probabilidad_cruce,n_eval_tabu,n_iter_tabu,tenencia_tabu
 
 
 def extraccion_Archivo( nombre_archivo):
