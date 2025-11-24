@@ -5,6 +5,8 @@ import random
 import individuo
 import logs
 import estadisticas
+import numpy as np
+from collections import deque
 def creacion_sol_aleatorias( num_sol, aleatorio, tam_sol,m_flujo,m_distacias):
 
 
@@ -162,51 +164,124 @@ def esta_poblacion(individuo,poblacion):
             return True
 
     return False
-def algortimo_evolutivo_generacional(tam, k,tam_poblacion,tam_greedy,m_flujo,m_distancia,aleatorio,max_iteraciones,n_elite,Kbest,K_worst,prob_mutacion,tiempo_max, operador_cruce, probabilidad_cruce,log, estadisticas):
-    cont =0
-    gen = 0
-    tiempo_incio=time.perf_counter()
-    poblacion_actual=[]
-    mejor_individuo=None
+def busqueda_tabu(tam, matriz_flujo, matriz_distancia, num_max_iteraciones, aleatorio, K, tenencia_tabu, oscilacion_estrategica, estancamiento, log):
+    print("Ejecutando búsqueda tabu...")
 
-    # Generamos una poblacion inicial
-    poblacion_actual = poblacion_inicial(tam, k, tam_poblacion, tam_greedy, m_flujo, m_distancia, aleatorio, n_elite)
-    cont=cont+evaluacion.evaluacion_poblacion(tam, m_flujo, m_distancia, poblacion_actual)
-    log.log("Poblacion inicial creada")
-    log.log(f"Número de iteraciones: {cont}")
-    while (cont < int(max_iteraciones)) and ((time.perf_counter()-tiempo_incio)<tiempo_max):
-        gen = gen + 1
-        log.log(f"Generación: {gen}", "GENERACION")
-        #Obtenemos la poblacion elite
-        elite = obtener_elite(poblacion_actual, n_elite)
-        log.log(f"Coste de la población élite", "ELITE")
-        for i, ind in enumerate(elite):
-            log.log(f"E_{i}: {ind.coste}", "ELITE")
-        # Seleccion por torneo
-        poblacion_actual = seleccion_por_torneo(poblacion_actual, tam_poblacion, aleatorio, Kbest)
-        #implementacion de los cruces
-        poblacion_actual = cruce(poblacion_actual,tam_poblacion, probabilidad_cruce, aleatorio, Kbest, operador_cruce)
-        #implementacion de la mutacion
-        poblacion_actual=mutacion(poblacion_actual, tam,prob_mutacion, aleatorio, log)
-        # actualizamos los costes de la poblacion actual
-        cont = cont + evaluacion.evaluacion_poblacion(tam, m_flujo, m_distancia, poblacion_actual)
-        log.log(f"Número de iteraciones: {cont}")
-        #implementacion del reemplazamiento si elite no sobrevive es decir no está en poblacion_actual se aplica torneo de perdedores
-        for i in elite:
-            if(esta_poblacion(i,poblacion_actual)== False):
-                poblacion_actual= torneo_de_perdedores(poblacion_actual,aleatorio,K_worst,i, tam, m_flujo, m_distancia)
+    # Generar solución inicial con algoritmo greedy
+    log.log("Ejecuccuón de Greedy Aleatorio para obtener solución inicial de Búsqueda Tabu")
+    solucion = greedy_aleatorio.greedy_aleatorio(tam, matriz_flujo, matriz_distancia, aleatorio, K, log)
+    coste_solucion = evaluacion.evaluacion(tam, matriz_flujo, matriz_distancia, solucion)
+    mejor_solucion = solucion
+    coste_mejor = coste_solucion
 
-        mejor_individuo = min(poblacion_actual, key=lambda ind: ind.coste)
-        log.log(f"El individuo con el coste mínimo tiene un coste de: {mejor_individuo.coste}")
-        estadisticas.nuevo_punto(cont, mejor_individuo.coste)
-        #print(f"El individuo con el coste mínimo tiene un coste de: {mejor_individuo.coste}")
+    log.log_solucion_inicial(solucion, coste_solucion)
 
-    return mejor_individuo,cont
+    num_iteraciones = 0
 
-def algoritmo_memetico(tam_problema, k, tam_poblacion, tam_greedy, m_flujo, m_distancia, aleatorio, max_evaluaciones,n_elite,Kbest,K_worst,prob_mutacion,tiempo_max, operador_cruce, probabilidad_cruce,log, n_eval_tabu_max, n_iter_tabu):
+    # Definir DLB
+    DLB = [0] * tam
+
+    # Crear memoria a corto plazo (Lista circular de tamaño tenencia_tabu)
+    memoria_corto_plazo = deque(maxlen=tenencia_tabu)
+
+    #Creamos memoria a largo plazo
+    memoria_largo_plazo = np.zeros((tam, tam))
+
+    #Actualizamos la memoria a largo plazo con la solución inicial
+    actualizar_memoria_largo_plazo(memoria_largo_plazo, tam, solucion)
+
+    # Contador de oscilación y estancamiento
+    num_oscilacion = 0  # Contador de movimientos sin mejora
+    num_oscilacion_estancamiento = num_max_iteraciones * estancamiento  # Umbral para detectar estancamiento
+
+    while num_iteraciones < num_max_iteraciones:
+        mejor_vecino = solucion
+        mejor_coste_vecino = coste_solucion
+
+        #Exploramos con el DLB
+        while not all(DLB) and num_iteraciones < num_max_iteraciones:
+            for i in range(tam):
+                if DLB[i] == 0:
+                    mejora = False
+                    pos_j = i
+                    for j in range(tam -1):
+                        pos_j = (pos_j + 1) % tam
+                        #print("i:", i, "j:", j)
+                        if i != pos_j:
+                            solucion = intercambio_2_opt(mejor_vecino, i, pos_j)
+                            coste_solucion = evaluacion.factorizacion(tam, matriz_flujo, matriz_distancia, solucion, i, pos_j, mejor_coste_vecino)
+                            # print(coste_solucion)
+
+                            movimiento = (i, pos_j)
+                            es_tabu = movimiento_en_tabu(memoria_corto_plazo, movimiento)
+
+                            if coste_solucion < coste_mejor:
+                                aspiracion = True
+                                mejor_solucion = solucion
+                                coste_mejor = coste_solucion
+                                num_oscilacion = 0 # Reiniciamos el contador de oscilación
+                            else:
+                                aspiracion = False
+
+                            if es_tabu and not aspiracion:
+                                continue  # Saltar movimientos tabu sin aspiración
+
+                            if coste_solucion < mejor_coste_vecino:
+                                log.log_movimiento(num_iteraciones, i, pos_j, solucion, coste_solucion,True)
+                                mejor_vecino = solucion
+                                mejor_coste_vecino = coste_solucion
+                                DLB[i] = 0
+                                DLB[j] = 0
+                                mejora = True
+                                num_oscilacion += 1 # Contamos un movimiento sin mejora
+                                num_iteraciones += 1  # Contamos la iteración aquí porque hemos evaluado un vecino
+                                insertar_corto_plazo(memoria_corto_plazo, i, pos_j)
+                                break
+
+                    if mejora == False:
+                        DLB[i] = 1  # Marcar como no mejorable
+
+        if num_iteraciones >= num_max_iteraciones: # Salir si se alcanza el máximo de iteraciones
+            break
+
+        # En este punto quiere decir que el DLB =1 para todos
+        # Nos movemos al mejor vecino encontrado
+        if mejor_vecino is not None:
+            solucion = mejor_vecino
+            num_iteraciones += 1
+            num_oscilacion += 1
+            coste_solucion = mejor_coste_vecino
+            log.log_movimiento(num_iteraciones, -1, -1, mejor_vecino, mejor_coste_vecino, True if coste_solucion < coste_mejor else False)
+            reiniciar_memoria_corto_plazo(memoria_corto_plazo)
+            DLB = [0] * tam  # Reiniciar DLB para la nueva solución
+            actualizar_memoria_largo_plazo(memoria_largo_plazo, tam, mejor_vecino)
+
+        # Comprobamos estancamiento
+        if num_oscilacion >= num_oscilacion_estancamiento:
+            log.log("Estancamiento detectado. Aplicando estrategia de oscilación.")
+            #print("Estancamiento detectado. Reiniciando memoria a corto plazo.")
+            reiniciar_memoria_corto_plazo(memoria_corto_plazo)
+            num_oscilacion = 0  # Reiniciar el contador de oscilación
+            if aleatorio.random() < oscilacion_estrategica:
+                # Diversificación: Con la memoria a largo plazo, buscamos una solución alejada de las mejores históricas
+                log.log_evento("diversificación estratégica.", f"num_iteraciones={num_iteraciones}")
+                solucion = diversificacion_estrategica(tam, memoria_largo_plazo, aleatorio, K)
+            else:
+                # Intensificación: Con la memoria a largo plazo, buscamos una solución cercana a las mejores históricas
+                log.log_evento("intensificación estratégica.", f"num_iteraciones={num_iteraciones}")
+                solucion = intensificacion_estrategica(tam, memoria_largo_plazo, aleatorio, K)
+            coste_solucion = ev.evaluacion(tam, matriz_flujo, matriz_distancia, solucion)
+            log.log(" Nueva solución tras oscilación estratégica.", "EVENT")
+            log.log( f"Solución: {solucion}, Coste: {coste_solucion}", "EVENT")
+            log.log(f"Coste mejor solución hasta ahora: {coste_mejor}", "EVENT")
+
+    return mejor_solucion
+
+def algoritmo_memetico(tam_problema, k, tam_poblacion, tam_greedy, m_flujo, m_distancia, aleatorio, max_evaluaciones,n_elite,Kbest,K_worst,prob_mutacion,tiempo_max, operador_cruce, probabilidad_cruce,log, n_eval_tabu_max, n_iter_tabu, tenencia_tabu):
     n_evaluaciones=0
     n_eval_tabu=0
     gen = 0
+    mejor_individuo=None
     tiempo_inicio=time.perf_counter()
     poblacion_actual = poblacion_inicial(tam_problema, k, tam_poblacion, tam_greedy, m_flujo, m_distancia, aleatorio, n_elite)
     while n_evaluaciones < max_evaluaciones and (time.perf_counter()-tiempo_inicio<tiempo_max):
@@ -244,6 +319,8 @@ def algoritmo_memetico(tam_problema, k, tam_poblacion, tam_greedy, m_flujo, m_di
 
         mejor_individuo = min(poblacion_actual, key=lambda ind: ind.coste)
         log.log(f"El individuo con el coste mínimo tiene un coste de: {mejor_individuo.coste}")
+
+    return mejor_individuo, n_evaluaciones
 
 def main():
     probabilidad_cruce = 0.5
