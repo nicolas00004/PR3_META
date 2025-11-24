@@ -12,3 +12,5 @@ kworst=2
 prob_mutacion=0.1
 operador_cruce=OX2
 probabilidad_cruce=0.7
+n_eval_tabu=500
+n_iter_tabu=50
