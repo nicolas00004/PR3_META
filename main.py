@@ -31,7 +31,7 @@ if __name__ == "__main__":
             tam, flujo, distancias = extraccion_Datos.extraccion_Archivo(archivo)
             log.log_parametros("memetico", nombre_archivo, semilla, cruce=operador_cruce, M=num_sol, E=n_elite,
                                Kbest=k_best, Kworst=k_worst, Prob_mut=prob_mutacion, Prob_cruce=probabilidad_cruce)
-            solucion,iteraciones = algoritmo_memetico.algortimo_evolutivo_generacional(tam, k, num_sol,
+            solucion,iteraciones = algoritmo_memetico.algoritmo_memetico(tam, k, num_sol,
                                                                                          num_sol_greedy,
                                                                                          flujo, distancias,
                                                                                          aleatorio,
@@ -41,7 +41,7 @@ if __name__ == "__main__":
                                                                                          prob_mutacion,
                                                                                          tiempo_max,
                                                                                          operador_cruce,
-                                                                                         probabilidad_cruce,log, estadistica,n_eval_tabu,n_iter_tabu)
+                                                                                         probabilidad_cruce,log,n_eval_tabu,n_iter_tabu)
 
             duracion = time.time() - comienzo_aleatorio
             log.log_solucion_final(solucion.asignacion, solucion.coste, duracion)
