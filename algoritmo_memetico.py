@@ -256,24 +256,8 @@ def busqueda_tabu(tam, matriz_flujo, matriz_distancia, num_max_iteraciones, alea
             DLB = [0] * tam  # Reiniciar DLB para la nueva solución
             actualizar_memoria_largo_plazo(memoria_largo_plazo, tam, mejor_vecino)
 
-        # Comprobamos estancamiento
-        if num_oscilacion >= num_oscilacion_estancamiento:
-            log.log("Estancamiento detectado. Aplicando estrategia de oscilación.")
-            #print("Estancamiento detectado. Reiniciando memoria a corto plazo.")
-            reiniciar_memoria_corto_plazo(memoria_corto_plazo)
-            num_oscilacion = 0  # Reiniciar el contador de oscilación
-            if aleatorio.random() < oscilacion_estrategica:
-                # Diversificación: Con la memoria a largo plazo, buscamos una solución alejada de las mejores históricas
-                log.log_evento("diversificación estratégica.", f"num_iteraciones={num_iteraciones}")
-                solucion = diversificacion_estrategica(tam, memoria_largo_plazo, aleatorio, K)
-            else:
-                # Intensificación: Con la memoria a largo plazo, buscamos una solución cercana a las mejores históricas
-                log.log_evento("intensificación estratégica.", f"num_iteraciones={num_iteraciones}")
-                solucion = intensificacion_estrategica(tam, memoria_largo_plazo, aleatorio, K)
-            coste_solucion = ev.evaluacion(tam, matriz_flujo, matriz_distancia, solucion)
-            log.log(" Nueva solución tras oscilación estratégica.", "EVENT")
-            log.log( f"Solución: {solucion}, Coste: {coste_solucion}", "EVENT")
-            log.log(f"Coste mejor solución hasta ahora: {coste_mejor}", "EVENT")
+            coste_solucion = evaluacion.evaluacion(tam, matriz_flujo, matriz_distancia, solucion)
+
 
     return mejor_solucion
 

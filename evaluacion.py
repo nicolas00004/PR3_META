@@ -15,3 +15,10 @@ def evaluacion_poblacion(tam, matriz_flujo, matriz_distancia, poblacion):
             cont=cont+evaluado
 
     return cont
+
+def evaluacion(tam, matriz_flujo, matriz_distancia, asignacion):
+    coste_total = 0
+    for i in range(tam):
+        for j in range(tam):
+            coste_total += matriz_flujo[i,j] * matriz_distancia[asignacion[i], asignacion[j]]
+    return coste_total
