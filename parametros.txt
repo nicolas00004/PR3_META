@@ -1,0 +1,15 @@
+DATA=material
+Algoritmo=EVOLUTIVO_ESTACIONARIO
+Semilla=1658743
+tam_poblacion=100
+n_Sol_Greedy=0.2
+K=5
+n_ejecuciones=5
+iteraciones=50000
+t_max=60
+E=1
+kbest=2
+kworst=3
+prob_mutacion=0.1
+operador_cruce=OX2
+probabilidad_cruce=0.7
