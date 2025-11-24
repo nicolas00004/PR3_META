@@ -50,8 +50,6 @@ def cargar_datos(archivo):
     semilla = archivo['Semilla']
     k = archivo['K']
     k1=int(k)
-    algoritmo=archivo['Algoritmo']
-    algoritmos=algoritmo.split(',')
     n_sol=archivo['tam_poblacion']
     num_sol=int(n_sol)
     sol_gre=archivo['n_Sol_Greedy']
@@ -73,7 +71,7 @@ def cargar_datos(archivo):
         if archivo.endswith(".dat"):
             archivos_dat.append(os.path.join(ruta, archivo))
 
-    return semilla, k1, archivos_dat, algoritmos,num_sol,num_gre, num_ejecuciones,iteraciones,n_elite,k_best,k_worst,prob_mutacion,t_max, operador_cruce, probabilidad_cruce
+    return semilla, k1, archivos_dat,num_sol,num_gre, num_ejecuciones,iteraciones,n_elite,k_best,k_worst,prob_mutacion,t_max, operador_cruce, probabilidad_cruce
 
 
 def extraccion_Archivo( nombre_archivo):
