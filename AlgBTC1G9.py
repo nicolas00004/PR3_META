@@ -1,8 +1,7 @@
 from collections import deque
 
-import AlgGAC1G9 as gr
+import greedy_aleatorio as gr
 import evaluacion as ev
-import practica1
 import random
 import numpy as np
 import logs
@@ -113,9 +112,6 @@ def busqueda_tabu(tam, matriz_flujo, matriz_distancia, num_max_iteraciones, alea
     #Creamos memoria a largo plazo
     memoria_largo_plazo = np.zeros((tam, tam))
 
-    #Actualizamos la memoria a largo plazo con la solución inicial
-    actualizar_memoria_largo_plazo(memoria_largo_plazo, tam, solucion)
-
     # Contador de oscilación y estancamiento
     num_oscilacion = 0  # Contador de movimientos sin mejora
     num_oscilacion_estancamiento = num_max_iteraciones * estancamiento  # Umbral para detectar estancamiento
@@ -123,6 +119,7 @@ def busqueda_tabu(tam, matriz_flujo, matriz_distancia, num_max_iteraciones, alea
     while num_iteraciones < num_max_iteraciones:
         mejor_vecino = solucion
         mejor_coste_vecino = coste_solucion
+        primera_iter = True
 
         #Exploramos con el DLB
         while not all(DLB) and num_iteraciones < num_max_iteraciones:
@@ -180,26 +177,7 @@ def busqueda_tabu(tam, matriz_flujo, matriz_distancia, num_max_iteraciones, alea
             log.log_movimiento(num_iteraciones, -1, -1, mejor_vecino, mejor_coste_vecino, True if coste_solucion < coste_mejor else False)
             reiniciar_memoria_corto_plazo(memoria_corto_plazo)
             DLB = [0] * tam  # Reiniciar DLB para la nueva solución
-            actualizar_memoria_largo_plazo(memoria_largo_plazo, tam, mejor_vecino)
 
-        # Comprobamos estancamiento
-        if num_oscilacion >= num_oscilacion_estancamiento:
-            log.log("Estancamiento detectado. Aplicando estrategia de oscilación.")
-            #print("Estancamiento detectado. Reiniciando memoria a corto plazo.")
-            reiniciar_memoria_corto_plazo(memoria_corto_plazo)
-            num_oscilacion = 0  # Reiniciar el contador de oscilación
-            if aleatorio.random() < oscilacion_estrategica:
-                # Diversificación: Con la memoria a largo plazo, buscamos una solución alejada de las mejores históricas
-                log.log_evento("diversificación estratégica.", f"num_iteraciones={num_iteraciones}")
-                solucion = diversificacion_estrategica(tam, memoria_largo_plazo, aleatorio, K)
-            else:
-                # Intensificación: Con la memoria a largo plazo, buscamos una solución cercana a las mejores históricas
-                log.log_evento("intensificación estratégica.", f"num_iteraciones={num_iteraciones}")
-                solucion = intensificacion_estrategica(tam, memoria_largo_plazo, aleatorio, K)
-            coste_solucion = ev.evaluacion(tam, matriz_flujo, matriz_distancia, solucion)
-            log.log(" Nueva solución tras oscilación estratégica.", "EVENT")
-            log.log( f"Solución: {solucion}, Coste: {coste_solucion}", "EVENT")
-            log.log(f"Coste mejor solución hasta ahora: {coste_mejor}", "EVENT")
 
     return mejor_solucion
 
