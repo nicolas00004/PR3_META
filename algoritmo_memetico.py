@@ -162,14 +162,31 @@ def esta_poblacion(individuo,poblacion):
     for i in poblacion:
         if(i.asignacion == individuo.asignacion and i.coste == individuo.coste):
             return True
-
     return False
+
+def reiniciar_memoria_corto_plazo(memoria):
+    memoria.clear()
+
+def movimiento_en_tabu(memoria, movimiento):
+    if movimiento[0] > movimiento[1]:
+        movimiento = (movimiento[1], movimiento[0])
+    return movimiento in memoria
+
+def insertar_corto_plazo(memoria, i, j):
+    if i < j:
+        elemento = (i, j)
+    else:
+        elemento = (j, i)
+    if elemento in memoria:
+        memoria.remove(elemento)
+    memoria.append(elemento)
+
 def busqueda_tabu(tam, matriz_flujo, matriz_distancia, num_max_iteraciones, aleatorio, K, tenencia_tabu, oscilacion_estrategica, estancamiento, log):
     print("Ejecutando búsqueda tabu...")
 
     # Generar solución inicial con algoritmo greedy
     log.log("Ejecuccuón de Greedy Aleatorio para obtener solución inicial de Búsqueda Tabu")
-    solucion = greedy_aleatorio.greedy_aleatorio(tam, matriz_flujo, matriz_distancia, aleatorio, K, log)
+    solucion = greedy_aleatorio.greedy_aleatorio(tam, matriz_flujo, matriz_distancia, aleatorio, K)
     coste_solucion = evaluacion.evaluacion(tam, matriz_flujo, matriz_distancia, solucion)
     mejor_solucion = solucion
     coste_mejor = coste_solucion
@@ -183,16 +200,6 @@ def busqueda_tabu(tam, matriz_flujo, matriz_distancia, num_max_iteraciones, alea
 
     # Crear memoria a corto plazo (Lista circular de tamaño tenencia_tabu)
     memoria_corto_plazo = deque(maxlen=tenencia_tabu)
-
-    #Creamos memoria a largo plazo
-    memoria_largo_plazo = np.zeros((tam, tam))
-
-    #Actualizamos la memoria a largo plazo con la solución inicial
-    actualizar_memoria_largo_plazo(memoria_largo_plazo, tam, solucion)
-
-    # Contador de oscilación y estancamiento
-    num_oscilacion = 0  # Contador de movimientos sin mejora
-    num_oscilacion_estancamiento = num_max_iteraciones * estancamiento  # Umbral para detectar estancamiento
 
     while num_iteraciones < num_max_iteraciones:
         mejor_vecino = solucion
@@ -219,7 +226,6 @@ def busqueda_tabu(tam, matriz_flujo, matriz_distancia, num_max_iteraciones, alea
                                 aspiracion = True
                                 mejor_solucion = solucion
                                 coste_mejor = coste_solucion
-                                num_oscilacion = 0 # Reiniciamos el contador de oscilación
                             else:
                                 aspiracion = False
 
@@ -233,7 +239,6 @@ def busqueda_tabu(tam, matriz_flujo, matriz_distancia, num_max_iteraciones, alea
                                 DLB[i] = 0
                                 DLB[j] = 0
                                 mejora = True
-                                num_oscilacion += 1 # Contamos un movimiento sin mejora
                                 num_iteraciones += 1  # Contamos la iteración aquí porque hemos evaluado un vecino
                                 insertar_corto_plazo(memoria_corto_plazo, i, pos_j)
                                 break
@@ -249,13 +254,10 @@ def busqueda_tabu(tam, matriz_flujo, matriz_distancia, num_max_iteraciones, alea
         if mejor_vecino is not None:
             solucion = mejor_vecino
             num_iteraciones += 1
-            num_oscilacion += 1
             coste_solucion = mejor_coste_vecino
             log.log_movimiento(num_iteraciones, -1, -1, mejor_vecino, mejor_coste_vecino, True if coste_solucion < coste_mejor else False)
             reiniciar_memoria_corto_plazo(memoria_corto_plazo)
             DLB = [0] * tam  # Reiniciar DLB para la nueva solución
-            actualizar_memoria_largo_plazo(memoria_largo_plazo, tam, mejor_vecino)
-
             coste_solucion = evaluacion.evaluacion(tam, matriz_flujo, matriz_distancia, solucion)
 
 
