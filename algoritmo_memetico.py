@@ -4,7 +4,6 @@ import greedy_aleatorio
 import random
 import individuo
 import logs
-import estadisticas
 import numpy as np
 from collections import deque
 def creacion_sol_aleatorias( num_sol, aleatorio, tam_sol,m_flujo,m_distacias):
@@ -270,6 +269,7 @@ def algoritmo_memetico(tam_problema, k, tam_poblacion, tam_greedy, m_flujo, m_di
     mejor_individuo=None
     tiempo_inicio=time.perf_counter()
     poblacion_actual = poblacion_inicial(tam_problema, k, tam_poblacion, tam_greedy, m_flujo, m_distancia, aleatorio, n_elite)
+    n_evaluaciones = n_evaluaciones + evaluacion.evaluacion_poblacion(tam_problema, m_flujo, m_distancia, poblacion_actual)
     while n_evaluaciones < max_evaluaciones and (time.perf_counter()-tiempo_inicio<tiempo_max):
         gen = gen + 1
         log.log(f"Generación: {gen}", "GENERACION")

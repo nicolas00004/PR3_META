@@ -4,7 +4,6 @@ import greedy_aleatorio
 import random
 import individuo
 import logs
-import estadisticas
 def creacion_sol_aleatorias( num_sol, aleatorio, tam_sol,m_flujo,m_distacias):
 
 

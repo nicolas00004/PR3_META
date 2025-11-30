@@ -1,4 +1,3 @@
-import estadisticas
 import extraccion_Datos
 import random
 import AlgGen_Clase1_Grupo9
@@ -23,8 +22,6 @@ if __name__ == "__main__":
         for archivo in archivos_Dat:
             nombre_archivo = os.path.basename(archivo).split(".")[0]
             log = logs.Logs(f"logs/{"MEMETICO"}_cruce_{operador_cruce}_m_{num_sol}_e_{n_elite}_kbest_{k_best}_kworst_{k_worst}_{nombre_archivo}_ejecucion_{i}.txt")
-            estadistica = estadisticas.Estadisticas(
-                f"estadisticas/{"MEMETICO"}_cruce_{operador_cruce}_e_{n_elite}_kbest_{k_best}_{nombre_archivo}_ejecucion_{i}.csv")
             comienzo_aleatorio = time.time()
             aleatorio = random.Random(semilla)
 
