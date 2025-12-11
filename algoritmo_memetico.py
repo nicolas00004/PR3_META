@@ -359,8 +359,7 @@ def algoritmo_memetico(tam_problema, k, tam_poblacion, tam_greedy, m_flujo, m_di
 
 
 
-if __name__ == '__main__':
-    main()
+
 
 
 
