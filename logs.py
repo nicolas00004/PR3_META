@@ -42,6 +42,23 @@ class Logs:
         self.log(f"Tiempo total: {tiempo_total:.3f} s", "RESULT")
         self.log("=== FIN DE EJECUCIÓN ===", "RESULT")
 
+    def log_solucion_inicial(self, solucion, coste):
+        """Registra la solución inicial."""
+        self.log(f"Solución inicial: {solucion}", "INIT")
+        self.log(f"Coste inicial: {coste}", "INIT")
+        self.log("---", "INIT")
+
+    def log_movimiento(self, iteracion, i, j, solucion, coste_nuevo, mejora):
+        """Guarda los detalles de un movimiento."""
+        estado = "MEJORA" if mejora else "EMPEORA"
+        if i == -1 and j == -1:
+            self.log(f"Iteración {iteracion}, Mejor vecino", "MOVE")
+        else:
+            self.log(f"Iteración {iteracion}: intercambio ({i}, {j}) → {estado}", "MOVE")
+        self.log(f"Solución: {solucion}", "MOVE")
+        self.log(f"Coste solucion: {coste_nuevo}", "MOVE")
+        self.log("---", "MOVE")
+
     def log_movimiento(self, iteracion, pos_i, pos_j, solucion, coste, es_mejora):
         """
         Registra un movimiento realizado durante la búsqueda tabú.
