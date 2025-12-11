@@ -21,7 +21,7 @@ if __name__ == "__main__":
         semilla = extraccion_Datos.permutar_semilla_circular(semilla)
         for archivo in archivos_Dat:
             nombre_archivo = os.path.basename(archivo).split(".")[0]
-            log = logs.Logs(f"logs/{"MEMETICO"}_cruce_{operador_cruce}_m_{num_sol}_e_{n_elite}_kbest_{k_best}_kworst_{k_worst}_evaluaciones_{n_eval_tabu}_{nombre_archivo}_iterBT_{n_iter_tabu}_ejecucion_{i}.txt")
+            log = logs.Logs(f"logs/{"MEMETICO"}_cruce_{operador_cruce}_m_{num_sol}_e_{n_elite}_kbest_{k_best}_kworst_{k_worst}_evaluaciones_{n_eval_tabu}_iterBT_{n_iter_tabu}_{nombre_archivo}_ejecucion_{i}.txt")
             comienzo_aleatorio = time.time()
             aleatorio = random.Random(semilla)
 
