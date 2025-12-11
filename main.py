@@ -21,13 +21,13 @@ if __name__ == "__main__":
         semilla = extraccion_Datos.permutar_semilla_circular(semilla)
         for archivo in archivos_Dat:
             nombre_archivo = os.path.basename(archivo).split(".")[0]
-            log = logs.Logs(f"logs/{"MEMETICO"}_cruce_{operador_cruce}_m_{num_sol}_e_{n_elite}_kbest_{k_best}_kworst_{k_worst}_{nombre_archivo}_ejecucion_{i}.txt")
+            log = logs.Logs(f"logs/{"MEMETICO"}_cruce_{operador_cruce}_m_{num_sol}_e_{n_elite}_kbest_{k_best}_kworst_{k_worst}_evaluaciones_{n_eval_tabu}_{nombre_archivo}_iterBT_{n_iter_tabu}_ejecucion_{i}.txt")
             comienzo_aleatorio = time.time()
             aleatorio = random.Random(semilla)
 
             tam, flujo, distancias = extraccion_Datos.extraccion_Archivo(archivo)
             log.log_parametros("memetico", nombre_archivo, semilla, cruce=operador_cruce, M=num_sol, E=n_elite,
-                               Kbest=k_best, Kworst=k_worst, Prob_mut=prob_mutacion, Prob_cruce=probabilidad_cruce)
+                               Kbest=k_best, Kworst=k_worst, Prob_mut=prob_mutacion, Prob_cruce=probabilidad_cruce, Eval_tabu=n_eval_tabu, IterBT=n_iter_tabu, Tenencia_tabu=tenencia_tabu)
             solucion,iteraciones = algoritmo_memetico.algoritmo_memetico(tam, k, num_sol,
                                                                                          num_sol_greedy,
                                                                                          flujo, distancias,
