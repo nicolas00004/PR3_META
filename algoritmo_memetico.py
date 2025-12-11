@@ -180,12 +180,12 @@ def insertar_corto_plazo(memoria, i, j):
         memoria.remove(elemento)
     memoria.append(elemento)
 
-def busqueda_tabu(tam, matriz_flujo, matriz_distancia, num_max_iteraciones, aleatorio, K, tenencia_tabu, oscilacion_estrategica, estancamiento, log):
-    print("Ejecutando búsqueda tabu...")
+def busqueda_tabu(tam, matriz_flujo, matriz_distancia, num_max_iteraciones, tenencia_tabu, log, solucion_inicial):
+    # print("Ejecutando búsqueda tabu...")
 
     # Generar solución inicial con algoritmo greedy
     log.log("Ejecuccuón de Greedy Aleatorio para obtener solución inicial de Búsqueda Tabu")
-    solucion = greedy_aleatorio.greedy_aleatorio(tam, matriz_flujo, matriz_distancia, aleatorio, K)
+    solucion = solucion_inicial
     coste_solucion = evaluacion.evaluacion(tam, matriz_flujo, matriz_distancia, solucion)
     mejor_solucion = solucion
     coste_mejor = coste_solucion
@@ -206,6 +206,9 @@ def busqueda_tabu(tam, matriz_flujo, matriz_distancia, num_max_iteraciones, alea
 
         #Exploramos con el DLB
         while not all(DLB) and num_iteraciones < num_max_iteraciones:
+            mejor_respaldo = None
+            mejor_coste_respaldo = float("inf")
+            movimiento_respaldo = None
             for i in range(tam):
                 if DLB[i] == 0:
                     mejora = False
@@ -241,6 +244,21 @@ def busqueda_tabu(tam, matriz_flujo, matriz_distancia, num_max_iteraciones, alea
                                 num_iteraciones += 1  # Contamos la iteración aquí porque hemos evaluado un vecino
                                 insertar_corto_plazo(memoria_corto_plazo, i, pos_j)
                                 break
+                            else:
+                                # Guardamos el mejor movimiento no mejorante como respaldo
+                                if coste_solucion < mejor_coste_respaldo:
+                                    mejor_respaldo = solucion
+                                    mejor_coste_respaldo = coste_solucion
+                                    movimiento_respaldo = movimiento
+                    # Si no hubo mejora, consideramos el mejor respaldo
+                    if mejora == False and mejor_respaldo is not None:
+                        log.log_movimiento(num_iteraciones, movimiento_respaldo[0], movimiento_respaldo[1], mejor_respaldo, mejor_coste_respaldo,False)
+                        mejor_vecino = mejor_respaldo
+                        mejor_coste_vecino = mejor_coste_respaldo
+                        DLB[i] = 0
+                        DLB[movimiento_respaldo[1]] = 0
+                        num_iteraciones += 1  # Contamos la iteración aquí porque hemos evaluado un vecino
+                        insertar_corto_plazo(memoria_corto_plazo, movimiento_respaldo[0], movimiento_respaldo[1])
 
                     if mejora == False:
                         DLB[i] = 1  # Marcar como no mejorable
@@ -292,8 +310,8 @@ def algoritmo_memetico(tam_problema, k, tam_poblacion, tam_greedy, m_flujo, m_di
         if n_eval_tabu > n_eval_tabu_max:
             log.log("Aplicando búsqueda tabú a la élite...", "TABU")
             for ind in elite:
-                # Aquí se podría implementar una función de búsqueda tabú específica
-                pass
+                ind.asignacion = busqueda_tabu(tam_problema, m_flujo, m_distancia, n_iter_tabu, tenencia_tabu, log, ind.asignacion)
+                ind.evaluar(tam_problema, m_flujo, m_distancia)
             n_eval_tabu -= n_eval_tabu_max
         log.log(f"Número total de evaluaciones: {n_evaluaciones}")
 
