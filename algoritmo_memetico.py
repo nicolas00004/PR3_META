@@ -356,18 +356,6 @@ def algoritmo_memetico(tam_problema, k, tam_poblacion, tam_greedy, m_flujo, m_di
         log.log(f"El individuo con el coste mínimo tiene un coste de: {mejor_individuo.coste}")
 
     return mejor_individuo, n_evaluaciones
-def main():
-    probabilidad_cruce = 0.5
-    aleatorio = random.Random(1)
- #   individuo1 = individuo.Individuo([1, 2, 3, 4, 5, 6, 7, 8])
-  #  individuo2 = individuo.Individuo([2, 4, 6, 8, 7, 5, 3, 1])
-
-#   hijo1, hijo2 = cruce_moc(individuo1, individuo2, aleatorio, 8)
-#    #hijo2 = cruce_ox2(individuo2, individuo1, aleatorio, probabilidad_cruce)
-
- #   print(f"Hijo 1: {hijo1.asignacion}")
-  #  print(f"Hijo 2: {hijo2.asignacion}")
-   # print(f"Padre: {individuo1.asignacion}")
 
 
 
