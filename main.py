@@ -1,7 +1,6 @@
 import extraccion_Datos
 import random
-import AlgGen_Clase1_Grupo9
-import algoritmo_memetico
+import ALG_MGen_Clase1_Grupo9
 import time
 import logs
 import os
@@ -28,7 +27,7 @@ if __name__ == "__main__":
             tam, flujo, distancias = extraccion_Datos.extraccion_Archivo(archivo)
             log.log_parametros("memetico", nombre_archivo, semilla, cruce=operador_cruce, M=num_sol, E=n_elite,
                                Kbest=k_best, Kworst=k_worst, Prob_mut=prob_mutacion, Prob_cruce=probabilidad_cruce, Eval_tabu=n_eval_tabu, IterBT=n_iter_tabu, Tenencia_tabu=tenencia_tabu)
-            solucion,iteraciones = algoritmo_memetico.algoritmo_memetico(tam, k, num_sol,
+            solucion,iteraciones = ALG_MGen_Clase1_Grupo9.algoritmo_memetico(tam, k, num_sol,
                                                                                          num_sol_greedy,
                                                                                          flujo, distancias,
                                                                                          aleatorio,
